@@ -1,0 +1,61 @@
+int analogPin = 0;
+int raw = 0;
+int Vin = 5;
+int potValue = A1; 
+float Vout = 0;
+float R1 = 1000;
+float R2 = 0;
+float pot = 0;
+float potResistance = 0;
+float buffer = 0;
+float R2WithPot = 0;
+void setup(){
+Serial.begin(9600);
+}
+float float_map(float x, float in_min, float in_max, float out_min, float out_max)
+{
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+void loop(){
+  raw = analogRead(analogPin);
+  if (raw) {
+    pot = analogRead(potValue);
+    buffer = raw * Vin;
+    Vout = (buffer)/1024.0;
+    buffer = (Vin/Vout) - 1;
+    R2= R1 * buffer;
+    if (pot == 0 && R2 < 10000) {
+      // Serial.print(F("Vout: "));
+      Serial.print(Vout);
+      Serial.print(F(" , "));
+      // Serial.print(F("R2: "));
+      Serial.print(R2/1000);
+      Serial.print(F(" , "));
+      Serial.println(pot/1000);
+      delay(100);
+    }
+    delay(100);
+    // had to add < 10000 or scale would never return to normal
+    if (pot > 0 && R2 < 10000) {
+      // Serial.print(F("using potentiometer"));
+      potResistance = float_map(pot, 0, 1023, 0.6, 10000);
+      R2 = (R1 + potResistance) * buffer;
+      // Serial.print(F("Vout: "));
+      Serial.print(Vout);
+      Serial.print(F(" , "));
+      // Serial.print(F("R2: "));
+      Serial.print(R2/1000);
+      Serial.print(F(" , "));
+      // Serial.print(F("potentiometer resistance "));
+      Serial.print(potValue);
+      Serial.print(F(" , "));
+      Serial.print(pot/1000);
+      Serial.print(F(" , "));
+      Serial.println(potResistance/1000);
+      delay(100);
+    }
+    delay(100);
+  }
+}
+
+
